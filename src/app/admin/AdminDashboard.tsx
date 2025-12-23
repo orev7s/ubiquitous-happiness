@@ -27,13 +27,15 @@ interface Deployment {
     discord_guild_id: string | null;
     public_url: string | null;
     status: string;
+    ping_enabled: number;
+    last_ping_at: string | null;
     created_at: string;
     account_name: string;
 }
 
 interface Stats {
     accounts: { total: number; enabled: number };
-    deployments: { total: number; running: number; error: number };
+    deployments: { total: number; running: number; error: number; pinging: number };
 }
 
 interface EnvVar {
@@ -57,7 +59,7 @@ export function AdminDashboard() {
     const [deployments, setDeployments] = useState<Deployment[]>([]);
     const [stats, setStats] = useState<Stats>({
         accounts: { total: 0, enabled: 0 },
-        deployments: { total: 0, running: 0, error: 0 },
+        deployments: { total: 0, running: 0, error: 0, pinging: 0 },
     });
     const [loading, setLoading] = useState(true);
     const [showAddAccount, setShowAddAccount] = useState(false);
@@ -73,7 +75,7 @@ export function AdminDashboard() {
     }, [fetchApi]);
 
     const loadDeployments = useCallback(async () => {
-        const result = await fetchApi<{ deployments: Deployment[]; stats: { total: number; running: number; error: number } }>('/api/admin/deployments');
+        const result = await fetchApi<{ deployments: Deployment[]; stats: { total: number; running: number; error: number; pinging: number } }>('/api/admin/deployments');
         if (result.success && result.data) {
             setDeployments(result.data.deployments);
             setStats(prev => ({ ...prev, deployments: result.data!.stats }));
@@ -240,6 +242,12 @@ export function AdminDashboard() {
                             {stats.deployments.error}
                         </span>
                     </div>
+                    <div className="stat-card">
+                        <span className="stat-label">Pinging</span>
+                        <span className="stat-value" style={{ color: 'var(--accent-info)' }}>
+                            {stats.deployments.pinging}
+                        </span>
+                    </div>
                 </div>
 
                 {activeTab === 'accounts' && (
@@ -388,6 +396,9 @@ export function AdminDashboard() {
                                                         </DropdownItem>
                                                         <DropdownItem onClick={() => handleDeploymentAction(dep.id, 'redeploy')}>
                                                             Redeploy
+                                                        </DropdownItem>
+                                                        <DropdownItem onClick={() => handleDeploymentAction(dep.id, dep.ping_enabled ? 'ping_disable' : 'ping_enable')}>
+                                                            {dep.ping_enabled ? '🔕 Disable Ping' : '🔔 Enable Ping'}
                                                         </DropdownItem>
                                                         <DropdownItem danger onClick={() => handleDeleteDeployment(dep.id)}>
                                                             Delete

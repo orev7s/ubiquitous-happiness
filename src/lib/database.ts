@@ -52,6 +52,8 @@ const initializeTables = (database: Database.Database): void => {
       discord_guild_id TEXT,
       public_url TEXT,
       status TEXT DEFAULT 'pending',
+      ping_enabled INTEGER DEFAULT 0,
+      last_ping_at TEXT,
       created_at TEXT DEFAULT (datetime('now')),
       FOREIGN KEY (koyeb_account_id) REFERENCES koyeb_accounts(id) ON DELETE CASCADE
     );

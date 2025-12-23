@@ -3,3 +3,4 @@ export * from './accounts';
 export * from './deployments';
 export * from './koyeb';
 export * from './api-utils';
+export * from './ping-service';

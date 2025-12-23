@@ -15,6 +15,7 @@ import {
     getKoyebService,
     getServiceEnvVars,
     mapKoyebStatus,
+    toggleDeploymentPing,
 } from '@/lib';
 
 interface RouteParams {
@@ -117,7 +118,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         const body = await request.json();
         const { action } = body;
 
-        const validActions = ['pause', 'resume', 'redeploy', 'sync'];
+        const validActions = ['pause', 'resume', 'redeploy', 'sync', 'ping_enable', 'ping_disable'];
         if (!validActions.includes(action)) {
             return errorResponse(`Invalid action. Must be one of: ${validActions.join(', ')}`);
         }
@@ -155,6 +156,12 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
                     updateDeploymentStatus(deploymentId, 'deleted');
                     return successResponse({ synced: true, status: 'deleted' });
                 }
+            case 'ping_enable':
+                toggleDeploymentPing(deploymentId, true);
+                return successResponse({ ping_enabled: true });
+            case 'ping_disable':
+                toggleDeploymentPing(deploymentId, false);
+                return successResponse({ ping_enabled: false });
         }
 
         return successResponse({ action, success: true });

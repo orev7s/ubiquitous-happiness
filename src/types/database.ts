@@ -23,6 +23,8 @@ export interface Deployment {
   discord_guild_id: string | null;
   public_url: string | null;
   status: DeploymentStatus;
+  ping_enabled: number;
+  last_ping_at: string | null;
   created_at: string;
 }
 

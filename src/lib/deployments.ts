@@ -90,10 +90,27 @@ export const deleteDeployment = (id: number): boolean => {
     return result.changes > 0;
 };
 
-export const getDeploymentStats = (): { total: number; running: number; error: number } => {
+export const getDeploymentStats = (): { total: number; running: number; error: number; pinging: number } => {
     const db = getDatabase();
     const total = db.prepare('SELECT COUNT(*) as count FROM deployments').get() as { count: number };
     const running = db.prepare("SELECT COUNT(*) as count FROM deployments WHERE status = 'running'").get() as { count: number };
     const error = db.prepare("SELECT COUNT(*) as count FROM deployments WHERE status = 'error'").get() as { count: number };
-    return { total: total.count, running: running.count, error: error.count };
+    const pinging = db.prepare("SELECT COUNT(*) as count FROM deployments WHERE ping_enabled = 1").get() as { count: number };
+    return { total: total.count, running: running.count, error: error.count, pinging: pinging.count };
+};
+
+export const toggleDeploymentPing = (id: number, enabled: boolean): boolean => {
+    const db = getDatabase();
+    const result = db.prepare('UPDATE deployments SET ping_enabled = ? WHERE id = ?').run(enabled ? 1 : 0, id);
+    return result.changes > 0;
+};
+
+export const getDeploymentsWithPingEnabled = (): Deployment[] => {
+    const db = getDatabase();
+    return db.prepare("SELECT * FROM deployments WHERE ping_enabled = 1 AND public_url IS NOT NULL").all() as Deployment[];
+};
+
+export const updateDeploymentLastPing = (id: number): void => {
+    const db = getDatabase();
+    db.prepare("UPDATE deployments SET last_ping_at = datetime('now') WHERE id = ?").run(id);
 };
