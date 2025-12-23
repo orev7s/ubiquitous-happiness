@@ -45,7 +45,7 @@ export const createServiceDefinition = (
                 { key: 'DISCORD_CLIENT_ID', value: config.discordClientId },
                 { key: 'DISCORD_OWNER_ID', value: config.discordOwnerId },
                 { key: 'DISCORD_GUILD_ID', value: config.discordGuildId || '' },
-                { key: 'API_ENABLED', value: 'false' },
+                { key: 'API_ENABLED', value: 'true' },
                 { key: 'PORT', value: String(DEFAULT_PORT) },
             ],
             ports: [{ port: DEFAULT_PORT, protocol: 'http' }],
